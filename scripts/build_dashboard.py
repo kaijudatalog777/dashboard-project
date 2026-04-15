@@ -20,7 +20,7 @@ from summarize import summarize_todos, summarize_commits, summarize_notes, summa
 load_dotenv()
 
 # 出力先
-OUTPUT_PATH = Path(__file__).parent.parent / "dashboard" / "index.html"
+OUTPUT_PATH = Path(__file__).parent.parent / "docs" / "index.html"
 
 JST = timezone(timedelta(hours=9))
 
