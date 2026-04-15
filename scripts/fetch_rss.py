@@ -7,11 +7,13 @@ from datetime import datetime
 
 # RSSソース一覧
 RSS_SOURCES = [
-    {"label": "AI/IT",    "url": "https://xtech.nikkei.com/rss/xtech-it.rdf"},
-    {"label": "経済",     "url": "https://www3.nhk.or.jp/rss/news/cat6.xml"},
-    {"label": "労務",     "url": "https://www.mhlw.go.jp/stf/news.rdf"},
-    {"label": "ビジネス", "url": "https://toyokeizai.net/list/feed/rss"},
-    {"label": "健康",     "url": "https://www3.nhk.or.jp/rss/news/cat7.xml"},
+    {"label": "AI/IT",       "url": "https://xtech.nikkei.com/rss/xtech-it.rdf"},
+    {"label": "経済",        "url": "https://www3.nhk.or.jp/rss/news/cat6.xml"},
+    {"label": "労務",        "url": "https://www.mhlw.go.jp/stf/news.rdf"},
+    {"label": "ビジネス",    "url": "https://toyokeizai.net/list/feed/rss"},
+    {"label": "健康",        "url": "https://www3.nhk.or.jp/rss/news/cat7.xml"},
+    {"label": "産業・化学",  "url": "https://www.nikkan.co.jp/rss/nksrdf.rdf"},
+    {"label": "科学・エネルギー", "url": "https://scienceportal.jst.go.jp/feed/rss.xml"},
 ]
 
 # 1ソースあたりの最大取得件数
