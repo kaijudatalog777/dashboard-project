@@ -16,6 +16,7 @@ from fetch_github import fetch_recent_commits
 from fetch_obsidian import fetch_recent_notes
 from fetch_rss import fetch_all_feeds
 from summarize import summarize_todos, summarize_commits, summarize_notes, summarize_rss
+from write_notion_dashboard import write_dashboard
 
 load_dotenv()
 
@@ -49,6 +50,25 @@ def build():
     commit_summary = summarize_commits(commits)
     note_summary = summarize_notes(notes)
     rss_summary = summarize_rss(articles)
+
+    # --- Notionダッシュボード書き込み ---
+    print("Notionダッシュボードに書き込み中...")
+    try:
+        write_dashboard(
+            date_str=date_str,
+            todos=todos,
+            todo_summary=todo_summary,
+            commits=commits,
+            commit_summary=commit_summary,
+            notes=notes,
+            note_summary=note_summary,
+            articles=articles,
+            rss_summary=rss_summary,
+        )
+    except SystemExit:
+        print("WARN: Notionダッシュボードへの書き込みをスキップしました")
+    except Exception as e:
+        print(f"WARN: Notionダッシュボードへの書き込み中にエラー: {e}")
 
     # --- HTML生成 ---
     print(f"index.html を生成中: {OUTPUT_PATH}")

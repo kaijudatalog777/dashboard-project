@@ -964,25 +964,38 @@ git push
 
 ## 15. 次回タスク（フェーズ3〜）
 
-### 最優先: フェーズ3 GitHub公開・自動化
+### ✅ フェーズ3 GitHub公開・自動化（2026-04-15 完了）
 
-| # | タスク | 詳細 |
+| # | タスク | 状態 |
 |---|---|---|
-| 3-1 | GitHubリポジトリ作成 | Public設定・`dashboard-project`という名前で作成 |
-| 3-2 | コードをGitHubにpush | `.env` を除いた全ファイルをアップロード |
-| 3-3 | GitHub Secretsの設定 | APIキー5種類をGitHubに登録 |
-| 3-4 | GitHub Pagesの有効化 | `/dashboard` フォルダを公開設定 |
-| 3-5 | GitHub Actionsの手動実行 | 正常に動くか確認 |
-| 3-6 | スマホでURL確認 | 公開URLにスマホからアクセス |
+| 3-1 | GitHubリポジトリ作成 | 完了 |
+| 3-2 | コードをGitHubにpush | 完了 |
+| 3-3 | GitHub Secretsの設定 | 完了（GITHUB_TOKEN→MY_GITHUB_TOKEN、GITHUB_USERNAME→MY_GITHUB_USERNAME） |
+| 3-4 | GitHub Pagesの有効化 | 完了（/docsフォルダ使用・/dashboardは不可だったため変更） |
+| 3-5 | GitHub Actionsの手動実行 | 完了（Success・48秒） |
+| 3-6 | 公開URL確認 | 完了 https://kaijudatalog777.github.io/dashboard-project/ |
 
-### フェーズ3完了後: Notionダッシュボード実装
+**2026-04-15 追加変更:**
+- RSSソース変更: 子育て・旧労務URLを削除、ビジネス（東洋経済）・産業化学（日刊工業新聞）・科学エネルギー（サイエンスポータル）を追加
+- 出力先を `dashboard/` から `docs/` に変更（GitHub Pages仕様に合わせる）
+- `GITHUB_TOKEN` → `MY_GITHUB_TOKEN`、`GITHUB_USERNAME` → `MY_GITHUB_USERNAME` に変更（GitHubの予約語制限のため）
 
-| # | タスク | 詳細 |
-|---|---|---|
-| N-1 | Notionダッシュボード用ページ作成 | Notionに「ダッシュボード」ページを作成 |
-| N-2 | `build_dashboard.py` にNotion書き込み追加 | 毎朝NotionページにもAI要約を書き込む |
-| N-3 | ハイブリッド動作確認 | HTML生成とNotion書き込みが両方動くか確認 |
-| N-4 | GitHub Secretsに `NOTION_DATABASE_ID` 追加 | GitHub Actions用に設定 |
+### 🔄 次回: Notionダッシュボード実装（未完了）
+
+| # | タスク | 詳細 | 状態 |
+|---|---|---|---|
+| N-1 | Notionダッシュボードページ作成 | 作成済み（ページID: 343955a112ce802a9d46c4e9ce04bd5d） | 完了 |
+| N-2 | `write_notion_dashboard.py` 作成 | Notionページ書き込みスクリプト作成済み | 完了 |
+| N-3 | `build_dashboard.py` にNotion書き込み追加 | コード追加済み | 完了 |
+| **N-4** | **Notionページにインテグレーション接続** | **プライベートページのため「接続を追加」が表示されない → ワークスペース側に移動が必要** | **未完了** |
+| N-5 | ハイブリッド動作確認 | HTML＋Notion両方書き込み確認 | 未完了 |
+| N-6 | GitHub Secretsに `NOTION_DASHBOARD_PAGE_ID` 追加 | GitHub Actions用 | 未完了 |
+
+**次回の最初にやること:**
+1. Notionで「パーソナルダッシュボード」ページを**ワークスペース側**に移動（または新規作成）
+2. 「接続を追加」→「dashboard」を接続
+3. 新しいページIDを `.env` の `NOTION_DASHBOARD_PAGE_ID` に更新
+4. `python scripts/build_dashboard.py` で動作確認
 
 ### 将来: フェーズ4 タスクライフサイクル管理
 
@@ -991,3 +1004,13 @@ git push
 | 4-3 | Obsidian→Notionタスク自動作成 | ノートからタスク抽出スクリプト |
 | 4-4 | Notionタスクのステータス管理 | Claude Code指示でステータス更新 |
 | 4-5 | 完了タスクのObsidian書き戻し | タスク完了記録をノートに保存 |
+
+### トラブルシューティング追記（2026-04-15）
+
+| 問題 | 原因 | 解決策 |
+|---|---|---|
+| GitHub Secretsに `GITHUB_USERNAME` が登録できない | `GITHUB_` で始まる名前はGitHubの予約語 | `MY_GITHUB_USERNAME` に変更 |
+| GitHub Pagesで `/dashboard` フォルダが選択できない | GitHub Pagesは `/(root)` か `/docs` のみ対応 | 出力先を `docs/` に変更 |
+| git pushが拒否される | GitHub Actionsが先にpushしていた | `git pull --rebase` してからpush |
+| Notionページに「接続を追加」が表示されない | ページがプライベート設定のため | ワークスペース側にページを移動する |
+| API Error 500 | Anthropic/ClaudeのAPIサーバーの一時障害 | しばらく待って再実行（こちら側の問題なし） |
