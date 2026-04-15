@@ -98,17 +98,24 @@ def summarize_rss(articles: list[dict]) -> str:
 
 
 def _generate(prompt: str) -> str:
-    """Geminiにプロンプトを送り、テキストを返す。"""
+    """Geminiにプロンプトを送り、テキストを返す。503時は最大3回リトライ。"""
+    import time
     client = _get_client()
-    try:
-        response = client.models.generate_content(
-            model="gemini-flash-latest",
-            contents=prompt,
-        )
-        return response.text.strip()
-    except Exception as e:
-        print(f"ERROR: Gemini API呼び出しに失敗しました: {e}")
-        sys.exit(1)
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model="gemini-flash-latest",
+                contents=prompt,
+            )
+            return response.text.strip()
+        except Exception as e:
+            if "503" in str(e) and attempt < 2:
+                wait = (attempt + 1) * 10
+                print(f"WARN: Gemini API混雑中。{wait}秒後にリトライ ({attempt+1}/3)...")
+                time.sleep(wait)
+                continue
+            print(f"ERROR: Gemini API呼び出しに失敗しました: {e}")
+            sys.exit(1)
 
 
 if __name__ == "__main__":
