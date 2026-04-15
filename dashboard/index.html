@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パーソナルダッシュボード</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; margin: 0; padding: 20px; }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 8px; }
+    h2 { color: #2980b9; margin-top: 32px; }
+    h3 { color: #555; }
+    .summary-box {
+      background: #eaf4fb; border-left: 4px solid #3498db;
+      padding: 12px 16px; border-radius: 4px; margin-bottom: 16px;
+      white-space: pre-wrap;
+    }
+    table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    th { background: #3498db; color: #fff; padding: 10px 12px; text-align: left; }
+    td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+    tr:last-child td { border-bottom: none; }
+    ul { background: #fff; border-radius: 6px; padding: 12px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    li { margin: 6px 0; }
+    a { color: #2980b9; }
+    .generated { color: #aaa; font-size: 0.85em; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <h1>パーソナルダッシュボード</h1>
+  <p>生成日時: <strong>2026年04月14日 23:59 JST</strong></p>
+
+  <!-- TODO セクション -->
+  <h2>TODO（Notion）</h2>
+  <div class="summary-box">本日のTODOは、現在「test_」という未着手項目が1件のみ登録されています。優先度や期限の詳細は不明ですが、まずはこのタスクの内容を具体化し、速やかに着手できる状態に整えることが最優先事項です。</div>
+  <table>
+    <thead><tr><th>ステータス</th><th>タスク</th><th>期限</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>未着手</td>
+          <td>test</td>
+          <td>—</td>
+        </tr></tbody>
+  </table>
+
+  <!-- GitHubコミット セクション -->
+  <h2>GitHub 直近コミット</h2>
+  <div class="summary-box">直近のコミットはありません。</div>
+  <table>
+    <thead><tr><th>日時</th><th>リポジトリ</th><th>コミット</th></tr></thead>
+    <tbody><tr><td colspan="3">データなし</td></tr></tbody>
+  </table>
+
+  <!-- Obsidianノート セクション -->
+  <h2>Obsidian 直近ノート</h2>
+  <div class="summary-box">労働法規等の公的資料の整理と、Claude Codeを軸としたAI開発の実践術が主なテーマです。ハッカソン優勝者の設定やPM推奨スキル、マルチエージェント化など、AIを実務で使い倒すための高度な知見が蓄積されています。（103文字）</div>
+  <ul>
+        <li><strong>2026-04-12</strong> <small>(2026-04-12 00:38)</small></li>
+        <li><strong>【Amazon・Disney・Capital One出身のSWE歴7年エンジニアによるClaude </strong> <small>(2026-04-11 22:36)</small></li>
+        <li><strong>【Anthropicハッカソン優勝者のClaude Code設定集が凄すぎたのでメモシェア〜🎵_Vi</strong> <small>(2026-04-11 22:36)</small></li>
+        <li><strong>2026-04-11</strong> <small>(2026-04-11 11:23)</small></li>
+        <li><strong>Anthropicハッカソンで優勝したClaudeCodeの「最終形態」みたいなリポジトリが存在する</strong> <small>(2026-04-10 22:51)</small></li></ul>
+
+  <!-- RSSニュース セクション -->
+  <h2>今日のニュース</h2>
+  <div class="summary-box">ご提示いただいたニュースヘッドラインをカテゴリごとにまとめました。（※「健康」カテゴリは内容がスポーツ関連であったため、その旨を反映しています）
+
+**【AI/IT】**
+東山産業のランサムウェア被害や、ソフト開発AI「Devin」の日本進出など、ITの光と影が鮮明になっています。業界ではSIerが「脱・人月」を掲げるFDE型へ転換を図り、SaaS市場も導入から「運用・管理」へと競争軸が移っています。開発全工程のAI駆動化を目指す動きも加速していますが、上流工程の自動化が依然として大きな課題となっており、技術の進化と組織変革の過渡期にあることが伺えます。（199文字）
+
+**【経済】**
+イラン情勢による世界経済への打撃が懸念され、IMFが成長率見通しを引き下げるなど地政学リスクが経済に暗い影を落としています。中国では習主席がスペイン首相と国際秩序の維持を確認した一方、EV大手BYDの拠点で大規模火災が発生。また、ウクライナが「無人兵器」による戦術転換を進めるなど、紛争の長期化と先端技術の軍事転用が、供給網や国際社会の経済的安定に深刻な影響を与え続けています。（198文字）
+
+**【健康（スポーツ）】**
+（※提供された見出しはスポーツ分野のトピックです）
+プロ野球では巨人が阪神の連勝を止め、ヤクルトが首位に浮上しました。バスケットボール女子の田中こころ選手が日本人2人目のWNBAドラフト指名を受ける快挙を達成。卓球の張本兄妹が世界選手権へ向け闘志を燃やす一方、大相撲の剣翔が惜しまれつつ引退を表明し、MLBでは菊池雄星投手が苦戦を強いられるなど、国内外の競技シーンで若手の台頭とベテランの去り際が交錯する一日となりました。（197文字）</div>
+  <h4>AI/IT</h4><ul><li><a href="https://xtech.nikkei.com/atcl/nxt/news/24/03176/" target="_blank">ランサム被害の東山産業、リークサイト掲載認める　委託先で被害報告相次ぐ</a> <small></small></li><li><a href="https://xtech.nikkei.com/atcl/nxt/column/18/00001/11665/" target="_blank">ソフト開発AIの「Devin」開発元が日本法人設立、販売・サポート体制拡充</a> <small></small></li><li><a href="https://xtech.nikkei.com/atcl/nxt/mag/nc/18/040900543/040900005/" target="_blank">台頭する「FDE」型　SIerが目指す脱人月</a> <small></small></li><li><a href="https://xtech.nikkei.com/atcl/nxt/mag/nc/18/040900543/040900004/" target="_blank">SaaSは「死なない」　管理・運用が競争軸に</a> <small></small></li><li><a href="https://xtech.nikkei.com/atcl/nxt/mag/nc/18/040900543/040900003/" target="_blank">全工程AI駆動に挑む　ボトルネックは上流に</a> <small></small></li></ul><h4>経済</h4><ul><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099621000.html" target="_blank">IMF 世界経済の成長率 イラン情勢影響で引き下げ見通し</a> <small>2026-04-14 13:39</small></li><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099611000.html" target="_blank">中国習主席 スペイン首相と会談 国際法と国際秩序重視を確認</a> <small>2026-04-14 13:27</small></li><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099571000.html" target="_blank">米のイラン港湾出入り封鎖後 12時間で3隻が周辺海域出入り</a> <small>2026-04-14 13:13</small></li><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099421000.html" target="_blank">ゼレンスキー大統領 “無人の兵器だけで陣地を奪還”</a> <small>2026-04-14 12:25</small></li><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099381000.html" target="_blank">中国「BYD」の生産拠点で大規模火災 立体駐車場から出火か</a> <small>2026-04-14 11:34</small></li></ul><h4>健康</h4><ul><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099591000.html" target="_blank">【プロ野球】阪神 巨人に負け連勝4で止まる ヤクルト首位浮上</a> <small>2026-04-14 14:14</small></li><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099181000.html" target="_blank">卓球 世界選手権団体戦へ 張本智和 美和が意気込み</a> <small>2026-04-14 08:44</small></li><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099101000.html" target="_blank">バスケ女子 田中こころ WNBAドラフトで指名 日本選手史上2人目</a> <small>2026-04-14 07:54</small></li><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015099111000.html" target="_blank">大相撲 引退の剣翔「相撲から離れるのはさみしい」心境語る</a> <small>2026-04-14 07:47</small></li><li><a href="http://www3.nhk.or.jp/news/html/20260414/k10015098991000.html" target="_blank">エンジェルス 菊池雄星 4回途中4失点で降板</a> <small>2026-04-14 07:43</small></li></ul>
+
+  <p class="generated">このページは自動生成されています。</p>
+</body>
+</html>

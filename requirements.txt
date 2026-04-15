@@ -1,0 +1,5 @@
+google-genai
+notion-client==2.2.1
+PyGithub
+feedparser
+python-dotenv

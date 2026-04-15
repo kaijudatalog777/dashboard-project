@@ -1,0 +1,44 @@
+name: Daily Dashboard Build
+
+on:
+  schedule:
+    # 毎朝6時JST（UTC 21:00 前日）
+    - cron: "0 21 * * *"
+  workflow_dispatch:  # 手動実行も可能
+
+permissions:
+  contents: write  # dashboard/index.html をコミット・プッシュするため
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python 3.11 セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 依存ライブラリをインストール
+        run: pip install -r requirements.txt
+
+      - name: ダッシュボードを生成
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          GITHUB_USERNAME: ${{ secrets.MY_GITHUB_USERNAME }}
+          OBSIDIAN_VAULT_PATH: ""
+        run: python scripts/build_dashboard.py
+
+      - name: index.html をコミット・プッシュ
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dashboard/index.html
+          git diff --cached --quiet || git commit -m "chore: update dashboard $(date +'%Y-%m-%d')"
+          git push
