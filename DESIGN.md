@@ -980,37 +980,61 @@ git push
 - 出力先を `dashboard/` から `docs/` に変更（GitHub Pages仕様に合わせる）
 - `GITHUB_TOKEN` → `MY_GITHUB_TOKEN`、`GITHUB_USERNAME` → `MY_GITHUB_USERNAME` に変更（GitHubの予約語制限のため）
 
-### 🔄 次回: Notionダッシュボード実装（未完了）
+### ✅ Notionダッシュボード実装（2026-04-16 完了）
+
+| # | タスク | 状態 |
+|---|---|---|
+| N-1 | Notionダッシュボードページ作成 | 完了（ページID: 343955a112ce803089bfea8d32761f1c） |
+| N-2 | `write_notion_dashboard.py` 作成 | 完了 |
+| N-3 | `build_dashboard.py` にNotion書き込み追加 | 完了 |
+| N-4 | Notionページにインテグレーション接続 | 完了（ワークスペース側で新規作成） |
+| N-5 | ハイブリッド動作確認 | 完了（HTML＋Notion両方書き込み確認済み） |
+| N-6 | GitHub Secretsに `NOTION_DASHBOARD_PAGE_ID` 追加 | 完了 |
+
+**2026-04-16 実装内容:**
+- `write_notion_dashboard.py` 新規作成（Notionページへの書き込み処理）
+- `build_dashboard.py` にNotion書き込み処理を追加（HTML生成と並行して実行）
+- Gemini API 503エラー時の自動リトライ機能追加（最大3回・10秒間隔）
+- データベースビュー（DB_TODO）を削除しないよう修正（`child_database` ブロックは保持）
+- `daily.yml` に `NOTION_DASHBOARD_PAGE_ID` 環境変数を追加
+- GitHub Actionsで動作確認済み（Success・2分31秒）
+
+**Notionダッシュボードの現在の構成:**
+```
+DB_TODO（リンクドビュー・手動設置・位置固定）
+生成日時
+TODO AI要約
+区切り線
+GitHub コミット AI要約 + リスト
+区切り線
+Obsidian ノート AI要約 + リスト
+区切り線
+今日のニュース AI要約 + カテゴリ別リスト
+```
+
+**仕様上の制約:**
+- DB_TODOは常にページ先頭になる（Notion APIの仕様・ブロック挿入位置の制限）
+- Obsidianデータは GitHub Actions 上では取得不可（ローカル実行時のみ）
+
+---
+
+### 🔄 次: フェーズ4 タスクライフサイクル管理
 
 | # | タスク | 詳細 | 状態 |
 |---|---|---|---|
-| N-1 | Notionダッシュボードページ作成 | 作成済み（ページID: 343955a112ce802a9d46c4e9ce04bd5d） | 完了 |
-| N-2 | `write_notion_dashboard.py` 作成 | Notionページ書き込みスクリプト作成済み | 完了 |
-| N-3 | `build_dashboard.py` にNotion書き込み追加 | コード追加済み | 完了 |
-| **N-4** | **Notionページにインテグレーション接続** | **プライベートページのため「接続を追加」が表示されない → ワークスペース側に移動が必要** | **未完了** |
-| N-5 | ハイブリッド動作確認 | HTML＋Notion両方書き込み確認 | 未完了 |
-| N-6 | GitHub Secretsに `NOTION_DASHBOARD_PAGE_ID` 追加 | GitHub Actions用 | 未完了 |
+| **4-1** | **ObsidianノートからNotionタスク自動作成** | **ノートを書いたら「タスク化して」と指示 → Claude Codeが抽出・登録** | **次回実装予定** |
+| 4-2 | Notionタスクのステータス管理 | Claude Code指示でステータス更新 | 未着手 |
+| 4-3 | 完了タスクのObsidian書き戻し | タスク完了記録をノートに保存 | 未着手 |
 
-**次回の最初にやること:**
-1. Notionで「パーソナルダッシュボード」ページを**ワークスペース側**に移動（または新規作成）
-2. 「接続を追加」→「dashboard」を接続
-3. 新しいページIDを `.env` の `NOTION_DASHBOARD_PAGE_ID` に更新
-4. `python scripts/build_dashboard.py` で動作確認
-
-### 将来: フェーズ4 タスクライフサイクル管理
-
-| # | タスク | 詳細 |
-|---|---|---|
-| 4-3 | Obsidian→Notionタスク自動作成 | ノートからタスク抽出スクリプト |
-| 4-4 | Notionタスクのステータス管理 | Claude Code指示でステータス更新 |
-| 4-5 | 完了タスクのObsidian書き戻し | タスク完了記録をノートに保存 |
-
-### トラブルシューティング追記（2026-04-15）
+### トラブルシューティング追記（2026-04-15〜16）
 
 | 問題 | 原因 | 解決策 |
 |---|---|---|
 | GitHub Secretsに `GITHUB_USERNAME` が登録できない | `GITHUB_` で始まる名前はGitHubの予約語 | `MY_GITHUB_USERNAME` に変更 |
 | GitHub Pagesで `/dashboard` フォルダが選択できない | GitHub Pagesは `/(root)` か `/docs` のみ対応 | 出力先を `docs/` に変更 |
 | git pushが拒否される | GitHub Actionsが先にpushしていた | `git pull --rebase` してからpush |
-| Notionページに「接続を追加」が表示されない | ページがプライベート設定のため | ワークスペース側にページを移動する |
+| Notionページに「接続を追加」が表示されない | ページがプライベート設定のため | ワークスペース側で新規ページを作成 |
 | API Error 500 | Anthropic/ClaudeのAPIサーバーの一時障害 | しばらく待って再実行（こちら側の問題なし） |
+| Gemini API 503エラーが頻発 | APIサーバーの混雑（朝の時間帯に多い） | 自動リトライ機能を実装（最大3回） |
+| ダッシュボード更新でDB_TODOが消える | `_clear_page` が全ブロック削除していた | `child_database` タイプは削除しないよう修正 |
+| DB_TODOが常にページ先頭になる | Notion APIはブロックの追記のみ対応（挿入位置指定不可） | 仕様として受け入れ。AI要約はDB_TODOの下に表示 |
