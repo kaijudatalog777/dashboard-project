@@ -30,6 +30,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          NOTION_DASHBOARD_PAGE_ID: ${{ secrets.NOTION_DASHBOARD_PAGE_ID }}
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           GITHUB_USERNAME: ${{ secrets.MY_GITHUB_USERNAME }}
           OBSIDIAN_VAULT_PATH: ""
