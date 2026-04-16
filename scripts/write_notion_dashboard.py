@@ -27,10 +27,13 @@ def _get_page_id() -> str:
 
 
 def _clear_page(client: Client, page_id: str):
-    """ページの既存ブロックを全て削除する。"""
+    """ページの既存ブロックのうち、データベースビュー以外を削除する。"""
     try:
         blocks = client.blocks.children.list(block_id=page_id)
         for block in blocks.get("results", []):
+            # child_database（リンクドビュー）は削除しない
+            if block.get("type") in ("child_database", "child_page"):
+                continue
             client.blocks.delete(block_id=block["id"])
     except Exception as e:
         print(f"WARN: ページのクリアに失敗しました: {e}")
