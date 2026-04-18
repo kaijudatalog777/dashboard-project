@@ -103,6 +103,7 @@ def write_dashboard(
     articles: list[dict],
     rss_summary: str,
     events: list[dict] = [],
+    wbs_summary: dict = None,
 ):
     """ダッシュボード内容をNotionページに書き込む。"""
     client = _get_client()
@@ -126,6 +127,39 @@ def write_dashboard(
     else:
         blocks.append(_paragraph("予定はありません"))
     blocks.append(_divider())
+
+    # WBSセクション
+    if wbs_summary and wbs_summary.get("total_tasks", 0) > 0:
+        total = wbs_summary["total_tasks"]
+        done = wbs_summary["done_tasks"]
+        pct = round(done / total * 100, 1) if total else 0
+        overdue = wbs_summary.get("overdue_tasks", [])
+        today_t = wbs_summary.get("today_tasks", [])
+        category = wbs_summary.get("category_progress", [])
+
+        blocks.append(_heading2("📊 WBS進捗サマリー"))
+        blocks.append(_paragraph(
+            f"総タスク: {total}　完了率: {pct}%　期限切れ: {len(overdue)}件　今日期限: {len(today_t)}件"
+        ))
+
+        if overdue:
+            blocks.append(_paragraph("⚠️ 期限切れタスク"))
+            for t in overdue[:10]:
+                blocks.append(_bullet(f"{t['title']}（{t['end_date']}）[{t['project']}]"))
+            if len(overdue) > 10:
+                blocks.append(_paragraph(f"  他 {len(overdue) - 10} 件..."))
+
+        if today_t:
+            blocks.append(_paragraph("📌 今日期限のタスク"))
+            for t in today_t:
+                blocks.append(_bullet(f"{t['title']}（{t['end_date']}）[{t['project']}]"))
+
+        if category:
+            blocks.append(_paragraph("📈 大分類別進捗"))
+            for c in category[:15]:
+                blocks.append(_bullet(f"{c['name']}　{c['pct']}%（{c['done']}/{c['total']}）"))
+
+        blocks.append(_divider())
 
     # TODOセクション（AI要約のみ・データベースビューは手動で設置）
     blocks.append(_heading2("📋 TODO（Notion）"))

@@ -42,6 +42,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
           GITHUB_USERNAME: ${{ secrets.MY_GITHUB_USERNAME }}
           OBSIDIAN_VAULT_PATH: ""
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: python scripts/build_dashboard.py
 
       - name: index.html をコミット・プッシュ

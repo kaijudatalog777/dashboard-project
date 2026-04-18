@@ -16,6 +16,7 @@ from fetch_github import fetch_recent_commits
 from fetch_obsidian import fetch_recent_notes
 from fetch_rss import fetch_all_feeds
 from fetch_calendar import fetch_events
+from fetch_wbs import fetch_wbs_summary
 from summarize import summarize_todos, summarize_commits, summarize_notes, summarize_rss
 from write_notion_dashboard import write_dashboard
 
@@ -48,6 +49,9 @@ def build():
     print("Googleカレンダーを取得中...")
     events = _safe_fetch(fetch_events, "Googleカレンダー", [])
 
+    print("WBS進捗を取得中...")
+    wbs_summary = _safe_fetch(fetch_wbs_summary, "WBS進捗", {})
+
     # --- Gemini要約 ---
     print("Geminiで要約中...")
     todo_summary = summarize_todos(todos)
@@ -69,6 +73,7 @@ def build():
             articles=articles,
             rss_summary=rss_summary,
             events=events,
+            wbs_summary=wbs_summary,
         )
     except SystemExit:
         print("WARN: Notionダッシュボードへの書き込みをスキップしました")
