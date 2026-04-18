@@ -102,6 +102,7 @@ def write_dashboard(
     note_summary: str,
     articles: list[dict],
     rss_summary: str,
+    events: list[dict] = [],
 ):
     """ダッシュボード内容をNotionページに書き込む。"""
     client = _get_client()
@@ -114,6 +115,16 @@ def write_dashboard(
 
     # ヘッダー
     blocks.append(_paragraph(f"生成日時: {date_str}"))
+    blocks.append(_divider())
+
+    # カレンダーセクション
+    blocks.append(_heading2("📅 今日・明日の予定"))
+    if events:
+        for e in events:
+            loc = f" @{e['location']}" if e.get("location") else ""
+            blocks.append(_bullet(f"{e['time']} {e['title']}{loc}"))
+    else:
+        blocks.append(_paragraph("予定はありません"))
     blocks.append(_divider())
 
     # TODOセクション（AI要約のみ・データベースビューは手動で設置）
