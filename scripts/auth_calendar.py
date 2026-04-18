@@ -5,7 +5,11 @@
 from google_auth_oauthlib.flow import InstalledAppFlow
 from pathlib import Path
 
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = [
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive.file",
+]
 CLIENT_SECRET = Path(__file__).parent.parent / "client_secret.json"
 TOKEN_FILE = Path(__file__).parent.parent / "token.json"
 
