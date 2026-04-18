@@ -26,8 +26,11 @@ TOKEN_FILE = _BASE / "token.json" if (_BASE / "token.json").exists() else Path("
 SHEET_TITLE = "WBSダッシュボード"
 GANTT_DAYS = 180          # ガントチャート表示日数
 GANTT_START_COL = 19      # S列（1始まり）
-HEADER_ROW = 4
-DATA_START_ROW = 5
+HEADER_ROW = 5            # 列ヘッダー行
+DATA_START_ROW = 6        # タスクデータ開始行
+DATE_ROW = 3              # 日付値行（条件付き書式の基準）
+DOW_ROW = 4               # 曜日行
+WEEKDAYS_JP = ["月", "火", "水", "木", "金", "土", "日"]
 
 # 列定義（1始まり）
 COL = {
@@ -190,50 +193,74 @@ def _write_wbs_sheet(
     rows = _build_wbs_rows(tasks)
     n = len(rows)
     today = date.today()
+    gantt_start_date = today - timedelta(days=14)
+
+    total_cols = GANTT_START_COL + GANTT_DAYS
 
     # --- Row 1: プロジェクト名・表示開始日 ---
-    gantt_start_date = today - timedelta(days=14)
-    start_col_letter = _col_letter(COL["p_start"])  # H
-    row1 = [""] * (GANTT_START_COL + 1)
+    row1 = [""] * total_cols
     row1[1] = proj["title"]
     row1[COL["p_start"] - 1] = "表示開始日:"
     row1[COL["p_end"] - 1] = gantt_start_date.isoformat()
 
-    # --- Row 3: 日付ヘッダー ---
-    # S3 = 表示開始日（I1セル参照）、以降 +1
-    date_header_row = [""] * (GANTT_START_COL - 1)
-    date_header_row[COL["p_end"] - 1] = gantt_start_date.isoformat()  # I1として使用
+    # --- Row 2: 月ヘッダー（月ごとのグループ名）---
+    row2 = [""] * total_cols
     for i in range(GANTT_DAYS):
         d = gantt_start_date + timedelta(days=i)
-        date_header_row.append(d.isoformat())
+        if d.day == 1 or i == 0:
+            row2[GANTT_START_COL - 1 + i] = f"{d.month}月"
 
-    # --- Row 4: 列ヘッダー ---
-    col_headers = [
+    # --- Row 3: 日付値（M/D形式、条件付き書式の基準）---
+    row3 = [""] * total_cols
+    row3[COL["p_end"] - 1] = gantt_start_date.isoformat()
+    for i in range(GANTT_DAYS):
+        d = gantt_start_date + timedelta(days=i)
+        row3[GANTT_START_COL - 1 + i] = f"{d.month}/{d.day}"
+
+    # --- Row 4: 曜日 ---
+    row4 = [""] * total_cols
+    for i in range(GANTT_DAYS):
+        d = gantt_start_date + timedelta(days=i)
+        row4[GANTT_START_COL - 1 + i] = WEEKDAYS_JP[d.weekday()]
+
+    # --- Row 5: 列ヘッダー ---
+    col_headers = [""] * total_cols
+    header_names = [
         "ID", "WBS No", "WBS_L1", "WBS_L2", "レベル",
         "階層1", "階層2",
         "予定開始", "予定終了", "実績開始", "実績終了",
         "予定工数(日)", "実績工数(日)", "超過率",
         "ステータス", "進捗", "成果物", "備考",
     ]
-    # ガントヘッダー（曜日）
-    for i in range(GANTT_DAYS):
-        d = gantt_start_date + timedelta(days=i)
-        col_headers.append(d.strftime("%m/%d"))
+    for i, h in enumerate(header_names):
+        col_headers[i] = h
 
-    # --- Row 5+: タスクデータ ---
+    # --- Row 6+: タスクデータ ---
     task_rows = []
     for row in rows:
-        r = [
-            row["id"], row["wbs_no"], row["l1"], row["l2"], row["level"],
-            row["h1"], row["h2"],
-            row["p_start"], row["p_end"], row["a_start"], row["a_end"],
-            row["p_days"], row["a_days"], row["overrun"],
-            row["status"], row["progress"], row["deliverable"], row["notes"],
-        ] + [""] * GANTT_DAYS
+        r = [""] * total_cols
+        r[0] = row["id"]
+        r[1] = row["wbs_no"]
+        r[2] = row["l1"]
+        r[3] = row["l2"]
+        r[4] = row["level"]
+        r[5] = row["h1"]
+        r[6] = row["h2"]
+        r[7] = row["p_start"]
+        r[8] = row["p_end"]
+        r[9] = row["a_start"]
+        r[10] = row["a_end"]
+        r[11] = row["p_days"]
+        r[12] = row["a_days"]
+        r[13] = row["overrun"]
+        r[14] = row["status"]
+        r[15] = row["progress"]
+        r[16] = row["deliverable"]
+        r[17] = row["notes"]
         task_rows.append(r)
 
     # 一括書き込み
-    all_data = [row1, [""] * len(col_headers), date_header_row, col_headers] + task_rows
+    all_data = [row1, row2, row3, row4, col_headers] + task_rows
     ws.update(values=all_data, range_name="A1")
 
     print(f"  [{sheet_name}] {n}タスク書き込み完了")
@@ -244,9 +271,9 @@ def _write_wbs_sheet(
 
     requests = []
 
-    # ヘッダー行（Row4）の背景色
+    # ヘッダー行（Row5）の背景色
     requests.append({"repeatCell": {
-        "range": {"sheetId": sheet_id, "startRowIndex": 3, "endRowIndex": 4,
+        "range": {"sheetId": sheet_id, "startRowIndex": 4, "endRowIndex": 5,
                   "startColumnIndex": 0, "endColumnIndex": COL["notes"]},
         "cell": {"userEnteredFormat": {
             "backgroundColor": {"red": 0.2, "green": 0.4, "blue": 0.8},
@@ -255,6 +282,56 @@ def _write_wbs_sheet(
         }},
         "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
     }})
+
+    # 月ヘッダー行（Row2）の書式
+    requests.append({"repeatCell": {
+        "range": {"sheetId": sheet_id, "startRowIndex": 1, "endRowIndex": 2,
+                  "startColumnIndex": GANTT_START_COL - 1, "endColumnIndex": GANTT_START_COL + GANTT_DAYS},
+        "cell": {"userEnteredFormat": {
+            "backgroundColor": {"red": 0.25, "green": 0.25, "blue": 0.35},
+            "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}, "fontSize": 9},
+            "horizontalAlignment": "LEFT",
+        }},
+        "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
+    }})
+
+    # 日付行（Row3）の書式
+    requests.append({"repeatCell": {
+        "range": {"sheetId": sheet_id, "startRowIndex": 2, "endRowIndex": 3,
+                  "startColumnIndex": GANTT_START_COL - 1, "endColumnIndex": GANTT_START_COL + GANTT_DAYS},
+        "cell": {"userEnteredFormat": {
+            "backgroundColor": {"red": 0.93, "green": 0.93, "blue": 0.93},
+            "textFormat": {"fontSize": 8},
+            "horizontalAlignment": "CENTER",
+        }},
+        "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
+    }})
+
+    # 曜日行（Row4）の書式
+    requests.append({"repeatCell": {
+        "range": {"sheetId": sheet_id, "startRowIndex": 3, "endRowIndex": 4,
+                  "startColumnIndex": GANTT_START_COL - 1, "endColumnIndex": GANTT_START_COL + GANTT_DAYS},
+        "cell": {"userEnteredFormat": {
+            "backgroundColor": {"red": 0.93, "green": 0.93, "blue": 0.93},
+            "textFormat": {"fontSize": 8},
+            "horizontalAlignment": "CENTER",
+        }},
+        "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
+    }})
+
+    # 月ごとに区切り線（1日の列に左ボーダー）
+    for i in range(GANTT_DAYS):
+        d = gantt_start_date + timedelta(days=i)
+        if d.day == 1 and i > 0:
+            col_0 = GANTT_START_COL - 1 + i
+            requests.append({"repeatCell": {
+                "range": {"sheetId": sheet_id, "startRowIndex": 1, "endRowIndex": DATA_START_ROW + n,
+                          "startColumnIndex": col_0, "endColumnIndex": col_0 + 1},
+                "cell": {"userEnteredFormat": {
+                    "borders": {"left": {"style": "SOLID_MEDIUM", "color": {"red": 0.5, "green": 0.5, "blue": 0.7}}}
+                }},
+                "fields": "userEnteredFormat.borders.left",
+            }})
 
     # プロジェクト名（Row1 B列）を太字に
     requests.append({"repeatCell": {
@@ -302,19 +379,27 @@ def _write_wbs_sheet(
             "fields": "pixelSize",
         }})
 
-    # 先頭4行・先頭7列を固定
+    # 先頭5行・先頭7列を固定
     requests.append({"updateSheetProperties": {
         "properties": {
             "sheetId": sheet_id,
-            "gridProperties": {"frozenRowCount": 4, "frozenColumnCount": 7},
+            "gridProperties": {"frozenRowCount": 5, "frozenColumnCount": 7},
         },
         "fields": "gridProperties(frozenRowCount,frozenColumnCount)",
+    }})
+
+    # ガント列幅を32pxに
+    requests.append({"updateDimensionProperties": {
+        "range": {"sheetId": sheet_id, "dimension": "COLUMNS",
+                  "startIndex": GANTT_START_COL - 1, "endIndex": GANTT_START_COL + GANTT_DAYS},
+        "properties": {"pixelSize": 32},
+        "fields": "pixelSize",
     }})
 
     # L1タスク行（level=1）を太字・薄背景
     for i, row in enumerate(rows):
         if row["level"] == 1:
-            row_0 = DATA_START_ROW - 1 + i
+            row_0 = DATA_START_ROW - 1 + i  # 0-indexed
             requests.append({"repeatCell": {
                 "range": {"sheetId": sheet_id, "startRowIndex": row_0, "endRowIndex": row_0 + 1,
                           "startColumnIndex": 0, "endColumnIndex": COL["notes"]},
@@ -348,11 +433,12 @@ def _apply_gantt_cf(service, spreadsheet_id: str, sheet_id: int, num_tasks: int)
     I = _col_letter(COL["p_end"])          # "I" 予定終了
     J = _col_letter(COL["a_start"])        # "J" 実績開始
     K = _col_letter(COL["a_end"])          # "K" 実績終了
-    r = DATA_START_ROW                     # 5
+    r = DATA_START_ROW                     # 6
 
     data_range = {"sheetId": sheet_id, "startRowIndex": d0, "endRowIndex": d_end,
                   "startColumnIndex": g0, "endColumnIndex": g_end}
-    head_range = {"sheetId": sheet_id, "startRowIndex": 2, "endRowIndex": 4,
+    # 月・日付・曜日ヘッダー行（Row2-4）に土日色を適用
+    head_range = {"sheetId": sheet_id, "startRowIndex": 1, "endRowIndex": 5,
                   "startColumnIndex": g0, "endColumnIndex": g_end}
 
     def cf_rule(formula: str, color: dict, cf_range: dict, index: int):
