@@ -11,8 +11,9 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
-TOKEN_FILE = Path(__file__).parent.parent / "token.json"
-CLIENT_SECRET = Path(__file__).parent.parent / "client_secret.json"
+_BASE = Path(__file__).parent.parent
+TOKEN_FILE = _BASE / "token.json" if (_BASE / "token.json").exists() else Path("token.json")
+CLIENT_SECRET = _BASE / "client_secret.json" if (_BASE / "client_secret.json").exists() else Path("client_secret.json")
 
 FETCH_DAYS = 2  # 今日と明日
 
