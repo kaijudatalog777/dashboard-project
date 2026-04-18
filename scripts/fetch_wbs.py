@@ -118,7 +118,7 @@ def fetch_wbs_summary() -> dict:
                     "pct": 100.0 if is_done else 0.0,
                 })
 
-        projects.append({"id": proj.get("id"), "title": title, "task_count": proj_total})
+        projects.append({"id": proj.get("id"), "title": title, "task_count": proj_total, "done_count": proj_done})
 
     # 期限切れを日付順でソート
     overdue_tasks.sort(key=lambda x: x["end_date"])

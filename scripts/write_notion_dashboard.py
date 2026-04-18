@@ -49,6 +49,36 @@ def _heading2(text: str) -> dict:
     }
 
 
+def _heading3(text: str) -> dict:
+    return {
+        "object": "block",
+        "type": "heading_3",
+        "heading_3": {
+            "rich_text": [{"type": "text", "text": {"content": text}}]
+        }
+    }
+
+
+def _table(headers: list[str], rows: list[list[str]]) -> dict:
+    def _cell(text: str) -> list:
+        return [{"type": "text", "text": {"content": text}}]
+
+    children = [{"type": "table_row", "table_row": {"cells": [_cell(h) for h in headers]}}]
+    for row in rows:
+        children.append({"type": "table_row", "table_row": {"cells": [_cell(c) for c in row]}})
+
+    return {
+        "object": "block",
+        "type": "table",
+        "table": {
+            "table_width": len(headers),
+            "has_column_header": True,
+            "has_row_header": False,
+            "children": children,
+        }
+    }
+
+
 def _callout(text: str, emoji: str = "💡") -> dict:
     return {
         "object": "block",
@@ -135,29 +165,48 @@ def write_dashboard(
         pct = round(done / total * 100, 1) if total else 0
         overdue = wbs_summary.get("overdue_tasks", [])
         today_t = wbs_summary.get("today_tasks", [])
+        projects = wbs_summary.get("projects", [])
         category = wbs_summary.get("category_progress", [])
 
         blocks.append(_heading2("📊 WBS進捗サマリー"))
-        blocks.append(_paragraph(
-            f"総タスク: {total}　完了率: {pct}%　期限切れ: {len(overdue)}件　今日期限: {len(today_t)}件"
+
+        # 全体KPI
+        blocks.append(_callout(
+            f"総タスク: {total}　完了率: {pct}%　期限切れ: {len(overdue)}件　今日期限: {len(today_t)}件",
+            "📊"
         ))
 
+        # プロジェクト一覧テーブル
+        table_rows = []
+        for proj in projects:
+            proj_name = proj["title"]
+            proj_total = proj["task_count"]
+            proj_overdue = [t for t in overdue if t["project"] == proj_name]
+            proj_cats = [c for c in category if c["project"] == proj_name]
+            proj_done_count = sum(c["done"] for c in proj_cats)
+            proj_pct = round(proj_done_count / proj_total * 100, 1) if proj_total else 0
+            overdue_str = f"{len(proj_overdue)}件" if proj_overdue else "なし"
+            table_rows.append([proj_name, str(proj_total), f"{proj_pct}%", overdue_str])
+
+        blocks.append(_table(
+            ["プロジェクト", "タスク数", "完了率", "期限切れ"],
+            table_rows
+        ))
+
+        # 期限切れタスク一覧
         if overdue:
-            blocks.append(_paragraph("⚠️ 期限切れタスク"))
-            for t in overdue[:10]:
-                blocks.append(_bullet(f"{t['title']}（{t['end_date']}）[{t['project']}]"))
-            if len(overdue) > 10:
-                blocks.append(_paragraph(f"  他 {len(overdue) - 10} 件..."))
+            blocks.append(_paragraph(""))
+            blocks.append(_heading3("⚠️ 期限切れタスク"))
+            for t in overdue[:15]:
+                blocks.append(_bullet(f"{t['title']}（{t['end_date']}）― {t['project']}"))
+            if len(overdue) > 15:
+                blocks.append(_bullet(f"他 {len(overdue) - 15} 件..."))
 
+        # 今日期限
         if today_t:
-            blocks.append(_paragraph("📌 今日期限のタスク"))
+            blocks.append(_heading3("📌 今日期限のタスク"))
             for t in today_t:
-                blocks.append(_bullet(f"{t['title']}（{t['end_date']}）[{t['project']}]"))
-
-        if category:
-            blocks.append(_paragraph("📈 大分類別進捗"))
-            for c in category[:15]:
-                blocks.append(_bullet(f"{c['name']}　{c['pct']}%（{c['done']}/{c['total']}）"))
+                blocks.append(_bullet(f"{t['title']}（{t['end_date']}）― {t['project']}"))
 
         blocks.append(_divider())
 
