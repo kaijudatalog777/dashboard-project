@@ -27,14 +27,22 @@ def _get_page_id() -> str:
 
 
 def _clear_page(client: Client, page_id: str):
-    """ページの既存ブロックのうち、データベースビュー以外を削除する。"""
+    """ページの既存ブロックのうち、データベースビュー以外を全削除する（ページネーション対応）。"""
     try:
-        blocks = client.blocks.children.list(block_id=page_id)
-        for block in blocks.get("results", []):
-            # child_database（リンクドビュー）は削除しない
-            if block.get("type") in ("child_database", "child_page"):
-                continue
-            client.blocks.delete(block_id=block["id"])
+        cursor = None
+        while True:
+            kwargs = {"block_id": page_id}
+            if cursor:
+                kwargs["start_cursor"] = cursor
+            response = client.blocks.children.list(**kwargs)
+            for block in response.get("results", []):
+                if block.get("type") in ("child_database", "child_page"):
+                    continue
+                client.blocks.delete(block_id=block["id"])
+            if response.get("has_more"):
+                cursor = response.get("next_cursor")
+            else:
+                break
     except Exception as e:
         print(f"WARN: ページのクリアに失敗しました: {e}")
 
